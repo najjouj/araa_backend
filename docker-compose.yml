@@ -1,0 +1,39 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: pylearn
+      POSTGRES_PASSWORD: pylearn
+      POSTGRES_DB: pylearn
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  # Self-hosted Piston sandbox — mirrors what you'll deploy as its own
+  # Railway/Render service in production (DEPLOYMENT.md, Step 4).
+  piston:
+    image: ghcr.io/engineer-man/piston
+    privileged: true # required by Piston to create its execution containers
+    ports:
+      - "2000:2000"
+    volumes:
+      - piston-data:/piston
+
+  api:
+    build: .
+    depends_on:
+      - db
+      - piston
+    environment:
+      DATABASE_URL: postgresql://pylearn:pylearn@db:5432/pylearn
+      CORS_ORIGINS: http://localhost:3000
+      PISTON_URL: http://piston:2000/api/v2
+    ports:
+      - "8000:8000"
+
+volumes:
+  pgdata:
+  piston-data:
