@@ -94,3 +94,31 @@ class Submission(Base):
     tests_passing = Column(Integer, nullable=False, default=0)
     tests_total = Column(Integer, nullable=False, default=0)
     submitted_at = Column(DateTime, default=datetime.utcnow)
+
+
+class Class(Base):
+    """Matches Phase 2 schema §3.7 (classroom). join_code is what students
+    use to self-enroll rather than requiring the teacher to invite each
+    student individually — simpler for a classroom/coding-club setting."""
+
+    __tablename__ = "classes"
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
+    teacher_id = Column(UUID(as_uuid=False), ForeignKey("users.id"), nullable=False)
+    name = Column(String, nullable=False)
+    join_code = Column(String, unique=True, nullable=False, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    enrollments = relationship("ClassEnrollment", back_populates="class_")
+
+
+class ClassEnrollment(Base):
+    __tablename__ = "class_enrollments"
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
+    class_id = Column(UUID(as_uuid=False), ForeignKey("classes.id"), nullable=False)
+    student_id = Column(UUID(as_uuid=False), ForeignKey("users.id"), nullable=False)
+    joined_at = Column(DateTime, default=datetime.utcnow)
+
+    class_ = relationship("Class", back_populates="enrollments")
+    student = relationship("User")
