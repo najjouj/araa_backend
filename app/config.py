@@ -16,11 +16,11 @@ class Settings(BaseSettings):
     # "https://pylearn.vercel.app,http://localhost:3000"
     cors_origins: str = "http://localhost:3000"
 
-    # Piston is a self-hostable sandboxed code execution engine
-    # (https://github.com/engineer-man/piston). Point this at either your
-    # own deployed instance or a compatible public instance during early
-    # development. See DEPLOYMENT.md, Step 4.
-    piston_url: str = "https://emkc.org/api/v2/piston"
+    # NOTE: Piston (self-hosted or public) is no longer used for code
+    # execution — see app/services/sandbox.py, which now runs student code
+    # as a resource-limited local subprocess instead. This variable is kept
+    # only so an old PISTON_URL env var doesn't break startup; it's unused.
+    piston_url: str = ""
 
     jwt_secret: str = "change-me-in-production"
     jwt_algorithm: str = "HS256"
